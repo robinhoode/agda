@@ -11,7 +11,7 @@ open import Relation.Binary.PropositionalEquality -- as PropEq
 --  using (_≡_; _≢_; refl; sym; cong; cong₂)
 
 open ≡-Reasoning
-module FunctionSpaces {a} {X : Set a} where
+module SymmetricGroup.FunctionSpaces {a} {X : Set a} where
 
   -- The identity function
   id : Op₁ X

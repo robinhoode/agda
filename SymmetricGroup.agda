@@ -11,9 +11,21 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
   open import Algebra.FunctionProperties.Core
 
   open PropEq.≡-Reasoning
-  open import FunctionSpaces as FS hiding (left-id; right-id)
+  open import SymmetricGroup.FunctionSpaces as FS hiding (left-id; right-id)
 
-  open import SymmetricGroup.Definition
+  open import SymmetricGroup.Definition using (Sym; bij; inv; left-inv; right-inv;_≈_; _⊗_; ι; _ˣ)
+
+  ≈-equiv : IsEquivalence _≈_
+  ≈-equiv = record
+    {
+      refl  = refl
+    ; sym   = sym
+    ; trans = trans
+    }
+
+
+  import Algebra.FunctionProperties as FP
+  open FP _≈_
 
   -- A proof that if two elements s, t : Sym(X) are approximately
   -- equivalent, then their inverses are equivalent
@@ -34,73 +46,12 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
       (f⁻¹ ∘ f) ∘ g⁻¹  ≡⟨ cong (λ x → x ∘ g⁻¹) σ₂ ⟩
       g⁻¹              ∎
 
-  -- Identity element
-  ι : Sym X ≅
-  ι = record
-    { bijection     = id
-    ; inverse       = id
-    ; left-inverse  = refl
-    ; right-inverse = refl
-    }
-
-  -- Inverse element
-  _ˣ : Op₁ (Sym X ≅)
-  s ˣ =
-    let f   = bij s
-        f⁻¹ = inv s
-        σ₁  = left-inv  s
-        σ₂  = right-inv s
-    in record
-    { bijection     = f⁻¹
-    ; inverse       = f
-    ; left-inverse  = σ₂
-    ; right-inverse = σ₁
-    }
-
-  infixl 6 _⊗_
-
-  _⊗_ : Op₂ (Sym X ≅)
-  s ⊗ t =
-    let f        = bij s
-        f⁻¹      = inv s
-        σ₁       = left-inv s
-        σ₂       = right-inv s
-        g        = bij t
-        g⁻¹      = inv t
-        τ₁       = left-inv t
-        τ₂       = right-inv t
-        π₁       = begin
-                   ((f ∘ g) ∘ (g⁻¹ ∘ f⁻¹)) ≡⟨ cong id (∘-right-assoc f g (g⁻¹ ∘ f⁻¹)) ⟩
-                   (f ∘ (g ∘ (g⁻¹ ∘ f⁻¹))) ≡⟨ cong (λ x → f ∘ x) (∘-left-assoc g g⁻¹ f⁻¹) ⟩
-                   (f ∘ ((g ∘ g⁻¹) ∘ f⁻¹)) ≡⟨ cong (λ x → f ∘ (x ∘ f⁻¹)) τ₁ ⟩
-                   (f ∘ (id ∘ f⁻¹))        ≡⟨ cong (λ x → f ∘ x) (FS.left-id f⁻¹) ⟩
-                   (f ∘ f⁻¹)               ≡⟨ cong id σ₁ ⟩
-                   id                      ∎
-
-        π₂       = begin
-                   ((g⁻¹ ∘ f⁻¹) ∘ (f ∘ g)) ≡⟨ cong id (∘-right-assoc g⁻¹ f⁻¹ (f ∘ g)) ⟩
-                   (g⁻¹ ∘ (f⁻¹ ∘ (f ∘ g))) ≡⟨ cong (λ x → g⁻¹ ∘ x) (∘-left-assoc f⁻¹ f g) ⟩
-                   (g⁻¹ ∘ ((f⁻¹ ∘ f) ∘ g)) ≡⟨ cong (λ x → g⁻¹ ∘ (x ∘ g)) σ₂ ⟩
-                   (g⁻¹ ∘ (id ∘ g))        ≡⟨ cong (λ x → g⁻¹ ∘ x) (FS.left-id g) ⟩
-                   (g⁻¹ ∘ g)               ≡⟨ cong id τ₂ ⟩
-                   id                      ∎
-
-    in record
-    { bijection     = f ∘ g
-    ; inverse       = g⁻¹ ∘ f⁻¹
-    ; left-inverse  = π₁
-    ; right-inverse = π₂
-    }
-
 
   ∘-dist-⊗ : (s t : Sym X ≅) → bij (s ⊗ t) ≡ (bij s) ∘ (bij t)
   ∘-dist-⊗ s t = refl
 
   ⊗-dist-∘ : (s t : Sym X ≅) → (bij s) ∘ (bij t) ≡ bij (s ⊗ t)
   ⊗-dist-∘ s t = refl
-
-  import Algebra.FunctionProperties as FP
-  open FP _≈_
 
   ι-left-id : LeftIdentity ι _⊗_
   ι-left-id s = begin
@@ -144,16 +95,6 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
                  bij ((s ˣ) ⊗ s)       ≡⟨ cong id (∘-dist-⊗ (s ˣ) s) ⟩
                  (bij (s ˣ)) ∘ (bij s) ≡⟨ cong id (right-inv s) ⟩
                  id                    ∎
-
-
-
-  ≈-equiv : IsEquivalence _≈_
-  ≈-equiv = record
-    {
-      refl  = refl
-    ; sym   = sym
-    ; trans = trans
-    }
 
   SymX-is-a-Semigroup : IsSemigroup _≈_ _⊗_
   SymX-is-a-Semigroup = record
