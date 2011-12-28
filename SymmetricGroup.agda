@@ -100,7 +100,11 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
   SymX-is-a-Semigroup = record
     { isEquivalence = ≈-equivalence
     ; assoc         = ⊗-assoc
+    -- This line works without any metavariable issues:
     ; ∙-cong        = λ {x} {y} {u} {v} x≈y u≈v → (⊗-cong {x} {y} {u} {v} x≈y u≈v)
+    -- However this one gives me problems
+    -- ; ∙-cong        = ⊗-cong
+    -- WHY? Aren't they the same thing?
     }
 
   SymX-is-a-Monoid : IsMonoid _≈_ _⊗_ ι
