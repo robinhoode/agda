@@ -3,7 +3,7 @@
 open import Relation.Binary hiding (Sym)
 open import Level
 
-module SymmetricGroup.Definition {a l} {X : Set a} {≅ : Rel X l} where
+module SymmetricGroup.Definition {a l} (X : Set a) (≅ : Rel X l) where
   open import Relation.Binary.PropositionalEquality as PropEq
   open import Algebra.FunctionProperties.Core
   open import SymmetricGroup.FunctionSpaces as FS hiding (left-id; right-id)
@@ -37,8 +37,8 @@ module SymmetricGroup.Definition {a l} {X : Set a} {≅ : Rel X l} where
 
   infix 4 _≈_
 
-  _≈_ : (s t : Sym X ≅) → Set _
-  _≈_ s t = (bij s) ≡ (bij t)
+  _≈_ : Rel (Sym X ≅) a
+  s ≈ t = (bij s) ≡ (bij t)
 
   -- Identity element
   ι : Sym X ≅

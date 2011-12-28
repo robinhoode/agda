@@ -13,16 +13,8 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
   open PropEq.≡-Reasoning
   open import SymmetricGroup.FunctionSpaces as FS hiding (left-id; right-id)
 
-  open import SymmetricGroup.Definition using (Sym; bij; inv; left-inv; right-inv;_≈_; _⊗_; ι; _ˣ)
-
-  ≈-equiv : IsEquivalence _≈_
-  ≈-equiv = record
-    {
-      refl  = refl
-    ; sym   = sym
-    ; trans = trans
-    }
-
+  import SymmetricGroup.Definition as Def
+  open Def X ≅
 
   import Algebra.FunctionProperties as FP
   open FP _≈_
@@ -65,16 +57,6 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
                  (bij s) ∘ id      ≡⟨ cong id (FS.right-id (bij s)) ⟩
                  (bij s)           ∎
 
-
---  ⊗-cong : _⊗_ Preserves₂ _≈_ ⟶ _≈_ ⟶ _≈_
-  ⊗-cong : {x y u v : Sym X ≅} → x ≈ y → u ≈ v → x ⊗ u ≈ y ⊗ v
-  ⊗-cong {x} {y} {u} {v} α β = begin
-                               bij (x ⊗ u)       ≡⟨ refl ⟩
-                               (bij x) ∘ (bij u) ≡⟨ cong (λ a → a ∘ (bij u)) α ⟩
-                               (bij y) ∘ (bij u) ≡⟨ cong (λ a → (bij y) ∘ a) β ⟩
-                               (bij y) ∘ (bij v) ≡⟨ cong id (⊗-dist-∘ y v) ⟩
-                               bij (y ⊗ v)       ∎
-
   ⊗-assoc : Associative _⊗_
   ⊗-assoc x y z = begin
                   bij ((x ⊗ y) ⊗ z)             ≡⟨ cong id (∘-dist-⊗ (x ⊗ y) z) ⟩
@@ -96,12 +78,29 @@ module SymmetricGroup {a l} (X : Set a) (≅ : Rel X l) where
                  (bij (s ˣ)) ∘ (bij s) ≡⟨ cong id (right-inv s) ⟩
                  id                    ∎
 
+  ⊗-cong : {x y u v : Sym X ≅} → (x ≈ y) → (u ≈ v) → (x ⊗ u ≈ y ⊗ v)
+  ⊗-cong {x} {y} {u} {v} x≈y u≈v = begin
+                               bij (x ⊗ u)       ≡⟨ cong id (∘-dist-⊗ x u) ⟩
+                               (bij x) ∘ (bij u) ≡⟨ cong (λ a → a ∘ (bij u)) x≈y ⟩
+                               (bij y) ∘ (bij u) ≡⟨ cong (λ a → (bij y) ∘ a) u≈v ⟩
+                               (bij y) ∘ (bij v) ≡⟨ cong id (⊗-dist-∘ y v) ⟩
+                               bij (y ⊗ v)       ∎
+
+
+--  ⊗-cong : _⊗_ Preserves₂ _≈_ ⟶ _≈_ ⟶ _≈_
+
+  ≈-equivalence : IsEquivalence _≈_
+  ≈-equivalence = record
+    { refl  = refl
+    ; sym   = sym
+    ; trans = trans
+    }
+
   SymX-is-a-Semigroup : IsSemigroup _≈_ _⊗_
   SymX-is-a-Semigroup = record
-    {
-      isEquivalence = ≈-equiv
+    { isEquivalence = ≈-equivalence
     ; assoc         = ⊗-assoc
-    ; ∙-cong        = ⊗-cong
+    ; ∙-cong        = λ {x} {y} {u} {v} x≈y u≈v → (⊗-cong {x} {y} {u} {v} x≈y u≈v)
     }
 
   SymX-is-a-Monoid : IsMonoid _≈_ _⊗_ ι
